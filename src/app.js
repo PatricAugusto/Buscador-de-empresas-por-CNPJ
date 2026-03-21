@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+require('./db/migrate');
 
 const app = express();
 app.use(express.json());
