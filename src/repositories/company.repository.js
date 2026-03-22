@@ -12,8 +12,20 @@ function create(company) {
       (@cnpj, @razao_social, @nome_fantasia, @situacao, @logradouro, @numero, @municipio, @uf, @cep, @telefone, @email)
   `);
 
-  const result = stmt.run(company);
+  stmt.run(company);
   return findByCnpj(company.cnpj);
 }
 
-module.exports = { findByCnpj, create };
+function search({ field, value, limit, offset }) {
+  const total = db
+    .prepare(`SELECT COUNT(*) as count FROM companies WHERE ${field} LIKE ?`)
+    .get(`%${value}%`).count;
+
+  const data = db
+    .prepare(`SELECT * FROM companies WHERE ${field} LIKE ? LIMIT ? OFFSET ?`)
+    .all(`%${value}%`, limit, offset);
+
+  return { data, total };
+}
+
+module.exports = { findByCnpj, create, search };

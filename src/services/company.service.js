@@ -54,4 +54,46 @@ async function getCompanyByCnpj(cnpj) {
   return { company, source: 'api' };
 }
 
-module.exports = { getCompanyByCnpj };
+const VALID_SEARCH_FIELDS = {
+  razao_social: 'razao_social',
+  municipio: 'municipio',
+  situacao: 'situacao',
+};
+
+function searchCompanies({ by, value, page, pageSize }) {
+  const field = VALID_SEARCH_FIELDS[by];
+
+  if (!field) {
+    const error = new Error(`Campo de busca inválido. Use: ${Object.keys(VALID_SEARCH_FIELDS).join(', ')}.`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!value || value.trim().length < 2) {
+    const error = new Error('Informe ao menos 2 caracteres para buscar.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const limit  = Math.min(parseInt(pageSize) || 10, 50);
+  const offset = ((parseInt(page) || 1) - 1) * limit;
+
+  const { data, total } = companyRepository.search({
+    field,
+    value: value.trim(),
+    limit,
+    offset,
+  });
+
+  return {
+    data,
+    pagination: {
+      total,
+      page: parseInt(page) || 1,
+      pageSize: limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}
+
+module.exports = { getCompanyByCnpj, searchCompanies };

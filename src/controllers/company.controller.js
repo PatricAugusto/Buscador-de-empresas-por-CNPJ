@@ -16,4 +16,16 @@ async function getByCnpj(req, res) {
   }
 }
 
-module.exports = { getByCnpj };
+function search(req, res) {
+  const { by, value, page, pageSize } = req.query;
+
+  try {
+    const result = companyService.searchCompanies({ by, value, page, pageSize });
+    return res.json(result);
+  } catch (err) {
+    const status = err.statusCode || 500;
+    return res.status(status).json({ error: err.message });
+  }
+}
+
+module.exports = { getByCnpj, search };
