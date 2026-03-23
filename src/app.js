@@ -3,11 +3,13 @@ const express = require('express');
 require('./db/migrate');
 
 const companyRoutes = require('./routes/company.routes');
+const favoriteRoutes = require('./routes/favorite.routes');
 
 const app = express();
 app.use(express.json());
 
 app.use('/companies', companyRoutes);
+app.use('/favorites', favoriteRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
